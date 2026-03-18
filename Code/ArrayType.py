@@ -26,7 +26,7 @@ print(arrdec_zeros)
 print(arrdec_zeros.shape)
 print(arrdec_zeros.dtype)
 
-arrdec_full = np.full((2,3,4), -1, np.int32)
+arrdec_full = np.full((2,3,4), -100, np.int32)
 print(arrdec_full)
 print(arrdec_full.shape)
 print(arrdec_full.dtype)
