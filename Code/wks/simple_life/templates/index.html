@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>毕业生极简生活预算管理模块 V1.0</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Graduation Budget Module</p>
+          <h1>毕业生极简生活计算器</h1>
+          <p class="subtitle">
+            输入税后工资，系统基于 NumPy 极简模型给出预算建议，并支持导出 Excel 预算与实际支出模板。
+          </p>
+        </div>
+        <div class="hero-meta">
+          <span class="meta-chip">版本 V1.0</span>
+          <span class="meta-chip">Flask + NumPy + Pandas</span>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="panel form-panel">
+          <div class="panel-header">
+            <h2>收入输入</h2>
+            <span id="statusText" class="status-pill">等待生成</span>
+          </div>
+
+          <form id="budgetForm" class="budget-form">
+            <label>
+              <span>每月税后工资收入</span>
+              <input
+                type="number"
+                id="salaryInput"
+                name="salary"
+                min="1000"
+                step="100"
+                value="{{ default_salary }}"
+                placeholder="请输入月薪"
+                required
+              />
+            </label>
+
+            <label>
+              <span>强制储蓄比例</span>
+              <div class="inline-field">
+                <input
+                  type="range"
+                  id="savingsRange"
+                  name="savings_ratio"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value="{{ default_savings_ratio }}"
+                />
+                <input
+                  type="number"
+                  id="savingsInput"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value="{{ default_savings_ratio }}"
+                />
+                <span class="unit">%</span>
+              </div>
+            </label>
+
+            <div class="button-row">
+              <button type="submit">生成预算方案</button>
+              <button type="button" id="exportButton" class="secondary">导出 Excel 报表</button>
+            </div>
+          </form>
+
+          <div class="summary-grid">
+            <article class="summary-card">
+              <span class="summary-label">月收入</span>
+              <strong id="salaryDisplay">¥0.00</strong>
+            </article>
+            <article class="summary-card">
+              <span class="summary-label">强制储蓄</span>
+              <strong id="savingsDisplay">¥0.00</strong>
+            </article>
+            <article class="summary-card">
+              <span class="summary-label">月度支出预算</span>
+              <strong id="spendingDisplay">¥0.00</strong>
+            </article>
+            <article class="summary-card highlight">
+              <span class="summary-label">预计每月结余</span>
+              <strong id="remainingDisplay">¥0.00</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel result-panel">
+          <div class="panel-header">
+            <h2>预算分配建议</h2>
+            <span class="status-pill neutral">极简生存模式</span>
+          </div>
+          <div id="budgetCards" class="budget-cards"></div>
+        </section>
+
+        <section class="panel annual-panel">
+          <div class="panel-header">
+            <h2>年度预算总览</h2>
+            <span id="annualHint" class="status-pill neutral">按 12 个月复制同一预算方案</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>月份</th>
+                  <th>房租</th>
+                  <th>餐饮</th>
+                  <th>交通</th>
+                  <th>通讯</th>
+                  <th>生活杂项</th>
+                  <th>储蓄</th>
+                </tr>
+              </thead>
+              <tbody id="annualTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel note-panel">
+          <div class="panel-header">
+            <h2>Excel 输出说明</h2>
+          </div>
+          <ul class="note-list">
+            <li>Sheet 1 为年度预算总表，展示 12 个月预算矩阵。</li>
+            <li>Sheet 2 为实际支出记录模板，可按月填入实际金额。</li>
+            <li>Excel 中自动计算差异 = 预算 - 实际，并标记结余或超支状态。</li>
+            <li>适合用于月底对比预算执行效果，形成账本闭环。</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
