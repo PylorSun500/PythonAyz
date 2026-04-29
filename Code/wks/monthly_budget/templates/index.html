@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>月度预算午餐生成器</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Monthly Budget Lunch Planner</p>
+          <h1>地中海饮食 30 顿午餐生成器</h1>
+          <p class="intro">
+            输入 1000-1200 元月度预算，系统将基于 NumPy 随机生成 30 顿不重样午餐，
+            每顿控制在 30-50 元之间，并保证每周至少 2 次鱼类。
+          </p>
+        </div>
+        <div class="badge-group">
+          <span class="badge">NumPy</span>
+          <span class="badge">Pandas</span>
+          <span class="badge">Flask</span>
+          <span class="badge">Excel</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <h2>预算输入</h2>
+          <span class="note">默认值 {{ default_budget }} 元</span>
+        </div>
+        <form method="post" action="{{ url_for('generate') }}" class="form-grid">
+          <label>
+            <span>月度预算（元）</span>
+            <input
+              type="number"
+              name="monthly_budget"
+              min="1000"
+              max="1200"
+              step="10"
+              value="{{ default_budget }}"
+              required
+            />
+          </label>
+          <div class="actions">
+            <button type="submit">生成午餐方案</button>
+            <button type="submit" formaction="{{ url_for('export') }}" class="secondary">
+              导出 Excel
+            </button>
+          </div>
+        </form>
+
+        {% if error_message %}
+        <div class="message error">{{ error_message }}</div>
+        {% endif %}
+      </section>
+
+      {% if result %}
+      <section class="stats">
+        <article class="stat-card">
+          <span>月度预算</span>
+          <strong>{{ result.summary["月度预算"] }} 元</strong>
+        </article>
+        <article class="stat-card">
+          <span>午餐总成本</span>
+          <strong>{{ result.summary["午餐总成本"] }} 元</strong>
+        </article>
+        <article class="stat-card">
+          <span>预算结余</span>
+          <strong>{{ result.summary["预算结余"] }} 元</strong>
+        </article>
+        <article class="stat-card">
+          <span>鱼类午餐次数</span>
+          <strong>{{ result.summary["鱼类午餐次数"] }} 次</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <h2>每周鱼类检查</h2>
+          <span class="note">每周至少 2 次鱼类</span>
+        </div>
+        <div class="weekly-check">
+          {% for item in result.summary["每周鱼类统计"] %}
+          <span class="week-pill">第 {{ item["周次"] }} 周：{{ item["鱼类次数"] }} 次</span>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <h2>30 顿午餐计划</h2>
+          <span class="note">每餐均为不重复搭配</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>周次</th>
+                <th>星期</th>
+                <th>菜单名称</th>
+                <th>主蛋白</th>
+                <th>蛋白类别</th>
+                <th>主食</th>
+                <th>蔬菜1</th>
+                <th>蔬菜2</th>
+                <th>配料</th>
+                <th>成本</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for meal in result.meals %}
+              <tr>
+                <td>{{ meal["周次"] }}</td>
+                <td>{{ meal["星期"] }}</td>
+                <td>{{ meal["菜单名称"] }}</td>
+                <td>{{ meal["主蛋白"] }}</td>
+                <td>{{ meal["蛋白类别"] }}</td>
+                <td>{{ meal["主食"] }}</td>
+                <td>{{ meal["蔬菜1"] }}</td>
+                <td>{{ meal["蔬菜2"] }}</td>
+                <td>{{ meal["配料"] }}</td>
+                <td>{{ meal["估算成本"] }} 元</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <h2>采购清单</h2>
+          <span class="note">按食材自动汇总份数与金额</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>类别</th>
+                <th>食材</th>
+                <th>份数</th>
+                <th>单份参考价</th>
+                <th>采购估算小计</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in result.shopping %}
+              <tr>
+                <td>{{ item["类别"] }}</td>
+                <td>{{ item["食材"] }}</td>
+                <td>{{ item["份数"] }}</td>
+                <td>{{ item["单份参考价"] }} 元</td>
+                <td>{{ item["采购估算小计"] }} 元</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {% endif %}
+    </main>
+  </body>
+</html>
